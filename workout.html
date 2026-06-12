@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Workout">
+<title>Strength Program</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --ink: #0f0f0f;
+    --paper: #f5f3ee;
+    --steel: #2c2c2c;
+    --chalk: #e8e4db;
+    --iron: #6b6560;
+    --push: #c0392b;
+    --pull: #1a5276;
+    --legs: #1e6b44;
+    --core: #7d3c98;
+    --accent: #e67e22;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ink);
+    padding: 20px 24px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--paper);
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
+  header p {
+    color: var(--iron);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--steel);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 14px 10px 12px;
+    border: none;
+    background: transparent;
+    color: var(--iron);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .tab span.day-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 2px;
+  }
+
+  .tab.active span.day-label { color: var(--paper); }
+  .tab:hover span.day-label { color: var(--paper); }
+
+  .tab.push.active { border-color: var(--push); }
+  .tab.pull.active { border-color: var(--pull); }
+  .tab.legs.active { border-color: var(--legs); }
+  .tab.core.active { border-color: var(--core); }
+
+  .tab.active { color: var(--paper); }
+
+  .day-panel { display: none; padding: 20px 16px 40px; max-width: 680px; margin: 0 auto; }
+  .day-panel.active { display: block; }
+
+  .day-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--chalk);
+  }
+
+  .day-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    min-width: 40px;
+  }
+  .push .day-badge { color: var(--push); }
+  .pull .day-badge { color: var(--pull); }
+  .legs .day-badge { color: var(--legs); }
+  .core .day-badge { color: var(--core); }
+
+  .day-title h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+  }
+  .day-title p {
+    font-size: 0.7rem;
+    color: var(--iron);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--chalk);
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+  .push .progress-bar-fill { background: var(--push); }
+  .pull .progress-bar-fill { background: var(--pull); }
+  .legs .progress-bar-fill { background: var(--legs); }
+  .core .progress-bar-fill { background: var(--core); }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--iron);
+    margin: 20px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--chalk);
+  }
+
+  .exercise {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    background: white;
+    border-radius: 6px;
+    border: 1.5px solid var(--chalk);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .exercise:hover { border-color: #ccc; }
+  .exercise.done {
+    background: var(--chalk);
+    opacity: 0.65;
+  }
+
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 2px solid var(--chalk);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+    font-size: 0.75rem;
+  }
+
+  .exercise.done .check {
+    border-color: currentColor;
+    background: currentColor;
+    color: white;
+  }
+
+  .push .exercise.done .check { color: var(--push); }
+  .pull .exercise.done .check { color: var(--pull); }
+  .legs .exercise.done .check { color: var(--legs); }
+  .core .exercise.done .check { color: var(--core); }
+
+  /* Override for the check icon color inside colored bg */
+  .exercise.done .check svg { stroke: white; }
+
+  .ex-info { flex: 1; }
+  .ex-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .exercise.done .ex-name { text-decoration: line-through; }
+
+  .ex-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--chalk);
+    color: var(--iron);
+    letter-spacing: 0.04em;
+  }
+
+  .tag.new {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+  }
+
+  .tag.key {
+    background: #e8f4f8;
+    color: #1a5276;
+  }
+
+  .ex-note {
+    font-size: 0.72rem;
+    color: var(--iron);
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  .sets-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .sets-input label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--iron);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .sets-input input {
+    width: 56px;
+    padding: 4px 6px;
+    border: 1.5px solid var(--chalk);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-align: center;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+  }
+
+  .sets-input input:focus { border-color: #aaa; }
+
+  .coach-tip {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 20px 0 0;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .coach-tip strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 13px;
+    background: transparent;
+    border: 1.5px solid var(--chalk);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--iron);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { background: var(--chalk); color: var(--ink); }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.65rem;
+    color: var(--iron);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Strength Program</h1>
+  <p>4-Day Push · Pull · Legs · Core &amp; Arms</p>
+</header>
+
+<div class="tabs" id="tabs">
+  <button class="tab push active" onclick="switchDay('push')">
+    <span class="day-label">Day 1</span>Push
+  </button>
+  <button class="tab pull" onclick="switchDay('pull')">
+    <span class="day-label">Day 2</span>Pull
+  </button>
+  <button class="tab legs" onclick="switchDay('legs')">
+    <span class="day-label">Day 3</span>Legs
+  </button>
+  <button class="tab core" onclick="switchDay('core')">
+    <span class="day-label">Day 4</span>Core &amp; Arms
+  </button>
+</div>
+
+<!-- DAY 1: PUSH -->
+<div class="day-panel push active" id="panel-push">
+  <div class="day-header">
+    <div class="day-badge">01</div>
+    <div class="day-title">
+      <h2>Push Day</h2>
+      <p>Chest · Shoulders · Triceps</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> New exercise</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a5276"></div> Key lift</div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-push"></div></div>
+
+  <div class="section-label">Warm-Up · 2 rounds</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Plate Halos</div>
+      <div class="ex-meta"><span class="tag">10 each dir</span></div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Scap Push-Ups</div>
+      <div class="ex-meta"><span class="tag">10 reps</span></div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Cuban Presses (light)</div>
+      <div class="ex-meta"><span class="tag">10 reps</span></div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Shoulder Dislocates</div>
+      <div class="ex-meta"><span class="tag">10 reps</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">Main Lifts · Strength</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Barbell Bench Press</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×4–6</span></div>
+      <div class="ex-note">Primary chest strength builder. Control the descent, 1–2 sec pause optional.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 80×5" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Incline Barbell Bench Press</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×5–7</span></div>
+      <div class="ex-note">30–45° incline. Targets upper chest and front delt.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 60×6" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Standing Barbell Overhead Press</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×4–6</span></div>
+      <div class="ex-note">Brace core hard. Don't flare elbows excessively. Full lockout at top.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 50×5" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Hypertrophy · Accessories</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Incline Fly</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Replaces barbell pullovers. Better chest stretch and isolation. Slight bend in elbows throughout.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 16×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Lateral Raises</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">4×12–15</span></div>
+      <div class="ex-note">Upgrade from KBs — better control. Slight forward lean. Lead with elbows, not hands. Last set: drop-set.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 10×15" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Lean-Away Lateral Raises</div>
+      <div class="ex-meta"><span class="tag">3×12</span></div>
+      <div class="ex-note">Hold a rack upright, lean away to increase range of motion at the bottom.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Close-Grip Bench Press</div>
+      <div class="ex-meta"><span class="tag">3×6–8</span></div>
+      <div class="ex-note">Hands shoulder-width. Tricep strength focus. Keep elbows tucked.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 60×8" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Overhead Tricep Extension</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Single DB both hands or one arm. Long head of tricep. Elbows stay narrow.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 20×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">EZ-Bar Skull Crushers</div>
+      <div class="ex-meta"><span class="tag">3×8–10</span></div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 30×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Pullover</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">3×12–15</span></div>
+      <div class="ex-note">Lie across a bench, single DB held overhead with both hands. Lowers behind head in a wide arc. Targets serratus anterior, chest stretch, and lat engagement — keeps rib cage mobile under load.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 18×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Conditioning</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">KB Swings or Incline Walk</div>
+      <div class="ex-meta"><span class="tag">10–15 min</span></div>
+    </div>
+  </div>
+
+  <div class="coach-tip">
+    <strong>🏋️ Coach's Note — Push Day</strong>
+    With 4 days you can drop the calf raises here — they move to Legs. The dumbbell fly and DB lateral raises are serious upgrades over barbell pullovers and KBs: more range of motion, unilateral correction, and better isolation. On the OHP, add weight when you hit the top of your rep range for 2 consecutive sessions (double progression). Same rule for bench.
+  </div>
+
+  <button class="reset-btn" onclick="resetDay('push')">Reset Day 1</button>
+</div>
+
+<!-- DAY 2: PULL -->
+<div class="day-panel pull" id="panel-pull">
+  <div class="day-header">
+    <div class="day-badge">02</div>
+    <div class="day-title">
+      <h2>Pull Day</h2>
+      <p>Back · Biceps · Rear Delts</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> New exercise</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a5276"></div> Key lift</div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-pull"></div></div>
+
+  <div class="section-label">Main Lifts · Strength</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Deadlift</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×3–5</span></div>
+      <div class="ex-note">King of pulls. Brace before the floor. Reset between reps for max strength intent.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 120×4" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Pull-Ups / Chin-Ups</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×5–8</span></div>
+      <div class="ex-note">Add weight via belt when bodyweight feels easy. Alternate grip weekly.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. BW×7" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Barbell Bent-Over Row</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×5–7</span></div>
+      <div class="ex-note">Overhand grip. Torso 45°. Pull to lower chest/navel for mid-back emphasis.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 80×6" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Back Thickness</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Chest-Supported Dumbbell Row</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">4×10–12</span></div>
+      <div class="ex-note">Big upgrade — DBs let you pronate/supinate through range. Lie on incline bench, elbows drive to ceiling.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 24×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Single-Arm Dumbbell Row</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12 each</span></div>
+      <div class="ex-note">Brace knee on bench. Full stretch at bottom, squeeze at top. Heavier than you think.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 28×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Upper Back · Rear Delts</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Rear Delt Fly (Bent-Over)</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">4×12–15</span></div>
+      <div class="ex-note">Better than KB — more control, easier to add small increments. Torso parallel, elbows slightly bent.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 10×15" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Face Pulls (with bands or cable)</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">3×15–20</span></div>
+      <div class="ex-note">Excellent for shoulder health and rear delt/external rotator development. Use a band anchored high if no cable.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Barbell Shrugs</div>
+      <div class="ex-meta"><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Hold at top for 1 sec. Trap thickness.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 100×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Biceps</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">EZ-Bar Curls</div>
+      <div class="ex-meta"><span class="tag">3×8–10</span></div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 35×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Hammer Curls</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Neutral grip hits brachialis and brachioradialis — builds arm thickness and forearm strength.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 16×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Reverse EZ-Bar Curls</div>
+      <div class="ex-meta"><span class="tag">2×12</span></div>
+      <div class="ex-note">Forearm extensors and grip. Go light.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Meadows Row</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">3×8–10 each</span></div>
+      <div class="ex-note">One end of the barbell in a corner (landmine style), straddle it and row with one arm. Hits the upper-outer lat in a way standard rows can't reach. Brace your free hand on your knee.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 40×8" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Grip & Conditioning</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">KB Farmer Carries</div>
+      <div class="ex-meta"><span class="tag">5 rounds × 40m</span></div>
+      <div class="ex-note">Grip, core bracing, traps. Walk tall, shoulders packed.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dead Hang / Active Hang</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">2–3 × max hold</span></div>
+      <div class="ex-note">Passive dead hang for shoulder decompression and grip. Progress to active hang (slight depression of scapula, lats engaged) for lat activation. Do after pull-ups when the bar is already warm.</div>
+    </div>
+  </div>
+
+  <div class="coach-tip">
+    <strong>🏋️ Coach's Note — Pull Day</strong>
+    The chest-supported DB row is one of the best back exercises you can add — it completely removes lower back from the equation and lets you hammer the mid-back with full range. Face pulls are non-negotiable for long-term shoulder health. Bicep work moves to Day 4 from this day if the session feels long — keep the EZ curls and hammer curls here for now, they're quick.
+  </div>
+
+  <button class="reset-btn" onclick="resetDay('pull')">Reset Day 2</button>
+</div>
+
+<!-- DAY 3: LEGS -->
+<div class="day-panel legs" id="panel-legs">
+  <div class="day-header">
+    <div class="day-badge">03</div>
+    <div class="day-title">
+      <h2>Legs Day</h2>
+      <p>Quads · Hamstrings · Glutes · Calves</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> New exercise</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a5276"></div> Key lift</div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-legs"></div></div>
+
+  <div class="section-label">Main Lifts · Strength</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Back Squat</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×4–6</span></div>
+      <div class="ex-note">Depth at or below parallel. Knees track toes. The centrepiece of this session.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 100×5" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Romanian Deadlift</div>
+      <div class="ex-meta"><span class="tag key">Key lift</span><span class="tag">4×6–8</span></div>
+      <div class="ex-note">Hip hinge, feel the hamstring stretch. Bar stays close to legs throughout.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 90×6" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Front Squat</div>
+      <div class="ex-meta"><span class="tag">3×4–6</span></div>
+      <div class="ex-note">Quad and upper back dominant. Keep elbows high throughout.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 70×5" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Unilateral Work</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Bulgarian Split Squats (with DBs)</div>
+      <div class="ex-meta"><span class="tag new">DB upgrade</span><span class="tag">3×8–10 each</span></div>
+      <div class="ex-note">Holding DBs at sides is easier on the upper body than barbell. Great for quad and glute balance between legs.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 20×8" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Walking Lunges (with DBs)</div>
+      <div class="ex-meta"><span class="tag new">DB added</span><span class="tag">3×12 each leg</span></div>
+      <div class="ex-note">DBs at sides. Adds loaded carries element. Step through, don't drag back foot.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 16×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Cossack Squats</div>
+      <div class="ex-meta"><span class="tag">3×8 each</span></div>
+      <div class="ex-note">Lateral mobility and adductor strength. Hold a plate or single DB at chest for counterbalance.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Posterior Chain</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Barbell Hip Thrust</div>
+      <div class="ex-meta"><span class="tag">4×8–10</span></div>
+      <div class="ex-note">Bench at scapula height. Full glute squeeze at top. Pause 1 sec at peak.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 80×8" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Nordic Curls / Sliding Hamstring Curls</div>
+      <div class="ex-meta"><span class="tag">3×5–8</span></div>
+      <div class="ex-note">Best hamstring builder available without a machine. Eccentric focus.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Seated Good Mornings</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Barbell on back, sit on bench, hinge forward at the hip. Isolates the hamstrings and spinal erectors without the lower back fatigue of standing good mornings. Go light — the stretch is the point.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 40×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Lower Leg</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Standing Calf Raises (DBs or KBs)</div>
+      <div class="ex-meta"><span class="tag">4×15–20</span></div>
+      <div class="ex-note">Full range — deep stretch at bottom. Slow eccentric (3 sec down).</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Tibialis Raises</div>
+      <div class="ex-meta"><span class="tag">3×15–20</span></div>
+      <div class="ex-note">Shin against wall. Balances calf dominance, protects knees and shins.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Conditioning</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">KB Swings – EMOM</div>
+      <div class="ex-meta"><span class="tag">10×20 swings</span></div>
+      <div class="ex-note">Hip hinge power. Rest of the minute is rest. Brutal but effective.</div>
+    </div>
+  </div>
+
+  <div class="coach-tip">
+    <strong>🏋️ Coach's Note — Legs Day</strong>
+    This is your heaviest session — protect it. If front squats feel like too much after back squats, swap to a Goblet Squat with a DB for the same quad stimulus with less spinal load. The DB upgrade on split squats and lunges is a great move — you'll load more naturally and have better balance. Calf raises moved from Day 1 back to here where they belong.
+  </div>
+
+  <button class="reset-btn" onclick="resetDay('legs')">Reset Day 3</button>
+</div>
+
+<!-- DAY 4: CORE & ARMS -->
+<div class="day-panel core" id="panel-core">
+  <div class="day-header">
+    <div class="day-badge">04</div>
+    <div class="day-title">
+      <h2>Core & Arms</h2>
+      <p>Abs · Biceps · Triceps · Shoulders</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> New exercise</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a5276"></div> Key lift</div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-core"></div></div>
+
+  <div class="section-label">Core · Anti-Rotation & Flexion</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Hanging Knee / Leg Raises</div>
+      <div class="ex-meta"><span class="tag">3×12–15</span></div>
+      <div class="ex-note">Control the swing. Progress from knees to straight legs over time.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Barbell Rollouts</div>
+      <div class="ex-meta"><span class="tag">3×8–10</span></div>
+      <div class="ex-note">Anti-extension core. One of the hardest and best ab exercises. Don't hyperextend at the bottom.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Weighted Sit-Ups</div>
+      <div class="ex-meta"><span class="tag">3×15–20</span></div>
+      <div class="ex-note">Hold plate at chest or overhead. Controlled eccentric.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Weighted Plank</div>
+      <div class="ex-meta"><span class="tag">3×30–60 sec</span></div>
+      <div class="ex-note">Plate on back. Squeeze everything. Don't let hips sag or pike.</div>
+    </div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Side Bends</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×12 each</span></div>
+      <div class="ex-note">Oblique lateral flexion. Hold DB in one hand, other hand on head. Don't rotate.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Arms · Biceps</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Incline Curl</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Seated on incline bench, arms hang back. Maximises long head stretch of bicep. Slow and controlled only.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 12×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Concentration Curl</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×12 each</span></div>
+      <div class="ex-note">Peak contraction and mind-muscle connection. Brace elbow on inner thigh.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 12×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Zottman Curl</div>
+      <div class="ex-meta"><span class="tag new">Added</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Curl up supinated (palms up), rotate to pronated (palms down) at the top, lower slowly. Bicep on the way up, brachioradialis and forearm on the way down. Two stimuli, one exercise.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 12×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Arms · Triceps</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Kickbacks</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×12–15 each</span></div>
+      <div class="ex-note">Lateral head isolation. Upper arm parallel to floor — don't let it drop. Squeeze hard at extension.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 10×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Tricep Extension (Lying)</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Like skull crushers but with DBs — rotate at the top to pronate. Better elbow comfort for many.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 14×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Shoulder Accessory</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Arnold Press</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×10–12</span></div>
+      <div class="ex-note">Hits all three delt heads through rotation. Start palms facing you, rotate to face out as you press.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 16×10" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Dumbbell Front Raise</div>
+      <div class="ex-meta"><span class="tag new">New · DB</span><span class="tag">3×12</span></div>
+      <div class="ex-note">Anterior delt isolation. Alternate arms or bilateral. Don't swing — control is everything here.</div>
+    </div>
+    <div class="sets-input"><label>wt/reps</label><input type="text" placeholder="e.g. 10×12" onclick="e=>e.stopPropagation()"></div>
+  </div>
+
+  <div class="section-label">Grip Work</div>
+
+  <div class="exercise" onclick="toggle(this)">
+    <div class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
+    <div class="ex-info">
+      <div class="ex-name">Plate Pinches or Towel Hangs</div>
+      <div class="ex-meta"><span class="tag">2–3 rounds × 30 sec</span></div>
+      <div class="ex-note">Grip transfers directly to deadlift and rows. Do this at the end when you're tired — real grip training.</div>
+    </div>
+  </div>
+
+  <div class="coach-tip">
+    <strong>🏋️ Coach's Note — Core &amp; Arms Day</strong>
+    This is your new day — the gift of a 4-day split. It frees up Days 1 and 2 to focus purely on strength, and gives your arms and core dedicated volume they weren't getting before. The DB incline curl and concentration curl are two of the best bicep builders — the stretch and peak contraction positions hit different parts of the muscle. Arnold press is a must — it covers all three delt heads in one movement. Keep intensity moderate here since Days 1–3 are the heavy hitters.
+  </div>
+
+  <button class="reset-btn" onclick="resetDay('core')">Reset Day 4</button>
+</div>
+
+<script>
+  const days = ['push', 'pull', 'legs', 'core'];
+
+  // --- Persistence helpers ---
+  function saveState() {
+    const state = {};
+    days.forEach(day => {
+      const panel = document.getElementById('panel-' + day);
+      const exercises = panel.querySelectorAll('.exercise');
+      const inputs = panel.querySelectorAll('.sets-input input');
+      state[day] = {
+        checked: [...exercises].map(e => e.classList.contains('done')),
+        inputs: [...inputs].map(i => i.value)
+      };
+    });
+    try { localStorage.setItem('workout_state', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    let state;
+    try { state = JSON.parse(localStorage.getItem('workout_state')); } catch(e) {}
+    if (!state) return;
+    days.forEach(day => {
+      const panel = document.getElementById('panel-' + day);
+      if (!state[day]) return;
+      const exercises = panel.querySelectorAll('.exercise');
+      const inputs = panel.querySelectorAll('.sets-input input');
+      (state[day].checked || []).forEach((done, i) => {
+        if (exercises[i] && done) exercises[i].classList.add('done');
+      });
+      (state[day].inputs || []).forEach((val, i) => {
+        if (inputs[i]) inputs[i].value = val;
+      });
+      updateProgress(panel);
+    });
+  }
+
+  // --- Core functions ---
+  function switchDay(day) {
+    days.forEach(d => {
+      document.getElementById('panel-' + d)?.classList.remove('active');
+      document.querySelector(`.tab.${d}`)?.classList.remove('active');
+    });
+    document.getElementById('panel-' + day)?.classList.add('active');
+    document.querySelector(`.tab.${day}`)?.classList.add('active');
+  }
+
+  function toggle(el) {
+    el.classList.toggle('done');
+    updateProgress(el.closest('.day-panel'));
+    saveState();
+  }
+
+  function updateProgress(panel) {
+    if (!panel) return;
+    const all = panel.querySelectorAll('.exercise');
+    const done = panel.querySelectorAll('.exercise.done');
+    const pct = all.length ? (done.length / all.length) * 100 : 0;
+    const bar = panel.querySelector('.progress-bar-fill');
+    if (bar) bar.style.width = pct + '%';
+  }
+
+  function resetDay(day) {
+    if (!confirm('Reset all exercises and weights for Day ' + (days.indexOf(day)+1) + '?')) return;
+    const panel = document.getElementById('panel-' + day);
+    panel.querySelectorAll('.exercise').forEach(e => e.classList.remove('done'));
+    panel.querySelectorAll('input').forEach(i => i.value = '');
+    updateProgress(panel);
+    saveState();
+  }
+
+  // Save weight inputs on change
+  document.querySelectorAll('.sets-input input').forEach(inp => {
+    inp.addEventListener('click', e => e.stopPropagation());
+    inp.addEventListener('input', saveState);
+  });
+
+  // Load saved state on startup
+  loadState();
+</script>
+</body>
+</html>
